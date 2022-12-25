@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <conio.h>
+#include <time.h>
 
 #define MAX_PACKAGES 100
+#define RESI_LEN 10
 
 // Struktur data untuk menyimpan informasi paket
 typedef struct {
@@ -42,6 +44,25 @@ void tambah_paket(Package paket) {
   } else {
     printf("Gudang penuh! Tidak dapat menambah paket lagi.\n");
   }
+}
+
+char* generate_resi() {
+  static char resi[RESI_LEN + 1];  // membuat array char statis untuk menyimpan nilai resi
+
+  srand(time(NULL));  // menginisialisasi generator bilangan acak dengan waktu saat ini
+
+  // mengenerate karakter acak untuk string resi
+  for (int i = 0; i < RESI_LEN; i++) {
+    // mengenerate bilangan acak atau huruf
+    if (rand() % 2 == 0) {
+      resi[i] = '0' + rand() % 10;  // mengenerate bilangan acak
+    } else {
+      resi[i] = 'A' + rand() % 26;  // mengenerate huruf acak
+    }
+  }
+  resi[RESI_LEN] = '\0';  // menandai akhir dari string resi dengan karakter '\0'
+
+  return resi;  // mengembalikan string resi yang telah dihasilkan
 }
 
 // Fungsi untuk mengeluarkan paket dari gudang
@@ -100,7 +121,8 @@ int main()
 {
   int pilihan;
   printf("21081010003 - Volem Alvaro Azira\n");
-  printf("20081010239 - Rifqi Alvian Ardhiansyah\n\n");
+  printf("20081010239 - Rifqi Alvian Ardhiansyah\n");
+  printf("20081010167 - Candra Kusuma Muhammad Bimantara\n\n");
   
 
   do {
@@ -118,16 +140,14 @@ int main()
 
     switch (pilihan) {
       case 1: {
-      	printf("Tidak Boleh Nomor Seri Yang Sudah Ada atau Sama.\n\n");
         Package paket;
-	printf("Nama Pengirim: ");
+        strcpy(paket.resi, generate_resi());
+		printf("Nama Pengirim: ");
         scanf("%s", paket.nama_pengirim);
         printf("Nama Penerima: ");
         scanf("%s", paket.nama_penerima);
         printf("Nomor Telp Penerima: ");
         scanf("%s", paket.telp_penerima);
-        printf("Nomor Resi: ");
-        scanf("%s", paket.resi);
         printf("Berat (kg): ");
         scanf("%f", &paket.berat);
         printf("Kota Tujuan: ");
