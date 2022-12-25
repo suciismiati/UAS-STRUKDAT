@@ -7,6 +7,9 @@
 
 // Struktur data untuk menyimpan informasi paket
 typedef struct {
+  char nama_pengirim[100]; // Nama Pengirim paket
+  char nama_penerima[100]; // Nama penerima paket
+  char telp_penerima[100]; // Nomer Telp Penerima
   char resi[50]; // Nomor resi paket
   float berat; // Berat paket dalam kg
   char alamat[100]; // Alamat tujuan paket
@@ -59,9 +62,14 @@ Package keluarkan_paket() {
 
 // Fungsi untuk mencetak informasi paket
 void cetak_paket(Package paket) {
-printf("Nomor resi: %s\n", paket.resi);
+printf("\xB2============== Paket No Resi - %s ==============\xB2\n", paket.resi); 
+printf("Nama Pengirim: %s\n", paket.nama_pengirim);
+printf("Nama Penerima: %s\n", paket.nama_penerima);
+printf("Nomer Telp Penerima: %s\n", paket.telp_penerima);
+printf("Nomor Resi: %s\n", paket.resi);
 printf("Berat: %.2f kg\n", paket.berat);
 printf("Alamat tujuan: %s\n", paket.alamat);
+printf("\xB2=================================================\xB2\n\n"); 
 }
 
 // Fungsi untuk mengeluarkan paket dari gudang dengan prinsip stack
@@ -91,16 +99,17 @@ void lihat_semua_paket_stack() {
 int main()
 {
   int pilihan;
-  printf("21081010003 - VOLEM ALVARO AZIRA\n\n");
+  printf("21081010003 - Volem Alvaro Azira\n");
+  printf("20081010239 - Rifqi Alvian Ardhiansyah\n\n");
   
 
   do {
   	printf("        <( PROGRAM G4 LOGISTIC )>\n");
     printf("\n================( Menu )================\n");
-    printf(" 1. Masukkan paket ke gudang\n");
-    printf(" 2. Kirim paket (queue)\n");
-    printf(" 3. Lihat paket teratas (stack)\n");
-    printf(" 4. Lihat semua paket di gudang (stack)\n");
+    printf(" 1. Masukkan Paket Ke Gudang\n");
+    printf(" 2. Kirim Paket (queue)\n");
+    printf(" 3. Lihat Paket Teratas (stack)\n");
+    printf(" 4. Lihat Semua Paket Di Gudang (stack)\n");
     printf(" 5. Keluar\n");
     printf("========================================\n");
     printf("Pilihan : ");
@@ -111,7 +120,13 @@ int main()
       case 1: {
       	printf("Tidak Boleh Nomor Seri Yang Sudah Ada atau Sama.\n\n");
         Package paket;
-        printf("Nomor resi: ");
+	printf("Nama Pengirim: ");
+        scanf("%s", paket.nama_pengirim);
+        printf("Nama Penerima: ");
+        scanf("%s", paket.nama_penerima);
+        printf("Nomor Telp Penerima: ");
+        scanf("%s", paket.telp_penerima);
+        printf("Nomor Resi: ");
         scanf("%s", paket.resi);
         printf("Berat (kg): ");
         scanf("%f", &paket.berat);
