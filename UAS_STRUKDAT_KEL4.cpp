@@ -168,13 +168,14 @@ Package dequeue(PackageQueue *queue) {
  void keluarkan_paket(PackageQueue *queue) {
   Package paket = dequeue(queue);
   if (strlen(paket.resi) > 0) {  // Periksa apakah paket kosong
-    printf("Paket yang telah terkirim :\n\n");
+    printf("\xB2============= Paket Yang Terkirim ===============\xB2\n");
     printf("Nama pengirim: %s\n", paket.nama_pengirim);
     printf("Nama penerima: %s\n", paket.nama_penerima);
     printf("Nomor telepon penerima: %s\n", paket.telp_penerima);
     printf("Nomor resi: %s\n", paket.resi);
     printf("Berat paket: %.2f kg\n", paket.berat);
     printf("Alamat tujuan: %s\n", paket.alamat);
+    printf("\xB2=================================================\xB2\n\n"); 
   } else {
   }
 }
@@ -203,12 +204,12 @@ void lihat_semua_paket(PackageStack *stack) {
     while (curr != NULL) {
       Package paket = curr->paket;
       printf("\xB2============== Paket No Resi - %s ==============\xB2\n", paket.resi); 
-      printf("Nama pengirim: %s\n", paket.nama_pengirim);
-      printf("Nama penerima: %s\n", paket.nama_penerima);
-      printf("Nomor telepon penerima: %s\n", paket.telp_penerima);
-      printf("Nomor resi: %s\n", paket.resi);
-      printf("Berat paket: %.2f kg\n", paket.berat);
-      printf("Alamat tujuan: %s\n", paket.alamat);
+      printf("Nama Pengirim: %s\n", paket.nama_pengirim);
+      printf("Nama Penerima: %s\n", paket.nama_penerima);
+      printf("Nomor Telepon Penerima: %s\n", paket.telp_penerima);
+      printf("Nomor Resi: %s\n", paket.resi);
+      printf("Berat Paket: %.2f kg\n", paket.berat);
+      printf("Alamat Tujuan: %s\n", paket.alamat);
       printf("\xB2=================================================\xB2\n\n"); 
       curr = curr->next;
     }
@@ -232,7 +233,7 @@ int main()
   	printf("        <( PROGRAM G4 LOGISTIC )>\n");
     printf("\n================( Menu )================\n");
     printf(" 1. Masukkan Paket Ke Gudang\n");
-    printf(" 2. Masukkan paket keantrian\n");
+    printf(" 2. Masukkan Paket Keantrian\n");
     printf(" 3. Kirim Paket \n");
     printf(" 4. Lihat Paket Teratas (stack)\n");
     printf(" 5. Lihat Semua Paket Di Gudang (stack)\n");
@@ -245,16 +246,18 @@ int main()
     switch (pilihan) {
       case 1: {
         Package paket;
-		printf("Nama Pengirim: ");
+        printf("\xB2============== Data Paket ==============\xB2\n"); 
+	printf("  Nama Pengirim: ");
         scanf("%s", paket.nama_pengirim);
-        printf("Nama Penerima: ");
+        printf("  Nama Penerima: ");
         scanf("%s", paket.nama_penerima);
-        printf("Nomor Telp Penerima: ");
+        printf("  Nomor Telp Penerima: ");
         scanf("%s", paket.telp_penerima);
-        printf("Berat (kg): ");
+        printf("  Berat (kg): ");
         scanf("%f", &paket.berat);
-        printf("Kota Tujuan: ");
+        printf("  Kota Tujuan: ");
         scanf("%s", paket.alamat);
+        printf("\xB2========================================\xB2\n");
         strcpy(paket.resi, generate_resi());
         push(stack, paket);;
         break;
