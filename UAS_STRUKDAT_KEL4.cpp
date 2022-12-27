@@ -4,7 +4,6 @@
 #include <conio.h>
 #include <time.h>
 
-#define MAX_PACKAGES 100
 #define RESI_LEN 10
 
 // Struktur data untuk menyimpan informasi paket
@@ -17,33 +16,92 @@ typedef struct {
   char alamat[100]; // Alamat tujuan paket
 } Package;
 
-Package gudang[MAX_PACKAGES]; // Gudang untuk menyimpan paket
-int awal = 0; // Indeks awal dari queue gudang
-int akhir = -1; // Indeks akhir dari queue gudang
-int brg;
+typedef struct package_node {
+  Package paket;
+  struct package_node *next;
+} PackageNode;
 
-// Fungsi untuk menambah paket ke gudang
-void tambah_paket(Package paket) {
-  // Pengecekan apakah sudah ada paket dengan nomor resi yang sama
-  for (int i = awal; i <= akhir; i++) {
-    if (strcmp(gudang[i].resi, paket.resi) == 0) {
-      printf("Gagal menambah paket. Nomor resi %s sudah ada.\n", paket.resi);
-      return;
-    }
-  }
+typedef struct {
+  PackageNode *top;
+  int count;  // jumlah paket di dalam stack
+  int max_size;  // maksimal tumpukan yang diinginkan
+} PackageStack;
 
-  // Penambahan paket dengan susunan stack paling berat di bawah
-  if (akhir < MAX_PACKAGES - 1) {
-    akhir++;
-    int i = akhir;
-    while (i > awal && gudang[i-1].berat < paket.berat) {
-      gudang[i] = gudang[i-1];
-      i--;
-    }
-    gudang[i] = paket;
+typedef struct {
+  PackageNode *front;
+  PackageNode *rear;
+} PackageQueue;
+
+PackageQueue* create_queue() {
+   PackageQueue *queue = (PackageQueue*) malloc(sizeof(PackageQueue));
+  queue->front = NULL;
+  queue->rear = NULL;
+  return queue;
+}
+
+int is_empty(PackageQueue *queue) {
+  return queue->front == NULL;
+}
+
+PackageStack* create_stack(int max_size) {
+  PackageStack *stack = (PackageStack*) malloc(sizeof(PackageStack));
+  stack->top = NULL;
+  stack->count = 0;
+  stack->max_size = max_size;
+  return stack;
+}
+
+int is_empty(PackageStack *stack) {
+  return stack->top == NULL;
+}
+
+int is_full(PackageStack *stack) {
+  return stack->count == stack->max_size;
+}
+
+void push(PackageStack *stack, Package paket) {
+  if (is_full(stack)) {
+    printf("Gudang sudah penuh!\n");
   } else {
-    printf("Gudang penuh! Tidak dapat menambah paket lagi.\n");
+    PackageNode *node = (PackageNode*) malloc(sizeof(PackageNode));
+    node->paket = paket;
+    node->next = stack->top;
+    stack->top = node;
+    stack->count++;
+    
+     // Menyortir paket di dalam stack menurut beratnya
+    PackageNode *curr = stack->top;
+    while (curr->next != NULL) {
+      if (curr->paket.berat > curr->next->paket.berat) {
+        // Menukar elemen saat terdeteksi paket yang lebih ringan
+        Package temp = curr->paket;
+        curr->paket = curr->next->paket;
+        curr->next->paket = temp;
+      }
+      curr = curr->next;
+    }
   }
+}
+
+Package pop(PackageStack *stack) {
+	  if (is_empty(stack)) {
+	    printf("Gudang kosong!\n");
+	  } else {
+	    PackageNode *node = stack->top;
+	    Package paket = node->paket;
+	stack->top = node->next;
+	free(node);
+	stack->count--;
+	return paket;
+	}
+}
+
+Package peek(PackageStack *stack) {
+	if (is_empty(stack)) {
+	printf("Gudang kosong!\n");
+	} 	else {
+	return stack->top->paket;
+	}
 }
 
 char* generate_resi() {
@@ -65,56 +123,90 @@ char* generate_resi() {
   return resi;  // mengembalikan string resi yang telah dihasilkan
 }
 
-// Fungsi untuk mengeluarkan paket dari gudang
-Package keluarkan_paket() {
-  Package paket;
-  if (awal <= akhir) {
-    // Paket hanya dapat dikirim jika sudah di keluarkan dari gudang
-    brg = 1;
-    paket = gudang[awal];
-    awal++;
+void enqueue(PackageQueue *queue, PackageStack *stack) {
+  if (is_empty(stack)) {
+    printf("gudang kosong! Tidak dapat menambahkan paket ke dalam antrian.\n");
+  } else {
+    Package paket = pop(stack);  // mengambil paket di puncak stack
+
+    PackageNode *node = (PackageNode*) malloc(sizeof(PackageNode));
+    node->paket = paket;
+    node->next = NULL;
+
+    if (is_empty(queue)) {
+      queue->front = node;
+      queue->rear = node;
+    } else {
+      queue->rear->next = node;
+      queue->rear = node;
+    }
+    printf("paket masuk ke antrian");
+  }
+}
+
+Package dequeue(PackageQueue *queue) {
+   if (is_empty(queue)) {
+    printf("tidak ada antrian! Tidak ada paket yang bisa dikirim.\n");
+    // Kembalikan paket kosong jika queue kosong
+    Package paket;
     return paket;
   } else {
-    printf("Gudang kosong! Tidak ada paket yang dapat dikirim.");
-    brg = 0;
+    PackageNode *node = queue->front;
+    Package paket = node->paket;
+    queue->front = queue->front->next;
+    free(node);
     return paket;
   }
 }
 
-// Fungsi untuk mencetak informasi paket
-void cetak_paket(Package paket) {
-printf("\xB2============== Paket No Resi - %s ==============\xB2\n", paket.resi); 
-printf("Nama Pengirim: %s\n", paket.nama_pengirim);
-printf("Nama Penerima: %s\n", paket.nama_penerima);
-printf("Nomer Telp Penerima: %s\n", paket.telp_penerima);
-printf("Nomor Resi: %s\n", paket.resi);
-printf("Berat: %.2f kg\n", paket.berat);
-printf("Alamat tujuan: %s\n", paket.alamat);
-printf("\xB2=================================================\xB2\n\n"); 
-}
-
-// Fungsi untuk mengeluarkan paket dari gudang dengan prinsip stack
-void keluarkan_paket_stack() {
-  if (awal <= akhir) {
-    int top = akhir;
-    Package paket = gudang[top];
-    akhir--;
+ void keluarkan_paket(PackageQueue *queue) {
+  Package paket = dequeue(queue);
+  if (strlen(paket.resi) > 0) {  // Periksa apakah paket kosong
     printf("Paket yang dikeluarkan:\n");
-    cetak_paket(paket);
+    printf("Nama pengirim: %s\n", paket.nama_pengirim);
+    printf("Nama penerima: %s\n", paket.nama_penerima);
+    printf("Nomor telepon penerima: %s\n", paket.telp_penerima);
+    printf("Nomor resi: %s\n", paket.resi);
+    printf("Berat paket: %.2f kg\n", paket.berat);
+    printf("Alamat tujuan: %s\n", paket.alamat);
   } else {
-    printf("Gudang kosong! Tidak ada paket yang dapat dikeluarkan.\n");
   }
 }
 
-void lihat_semua_paket_stack() {
-	if (awal <= akhir) {
-		printf("Seluruh paket di gudang (stack):\n");
-		for (int i = akhir; i >= awal; i--){
-		cetak_paket(gudang[i]);
-		}
-	} else {
-		printf("Gudang kosong! Tidak ada paket yang dapat dilihat.\n");
-	}
+void cetak_paket(PackageStack *stack) {
+  if (is_empty(stack)) {
+    printf("Tidak ada paket yang dapat dicetak.\n");
+  } else {
+    Package paket = peek(stack);  // mengakses paket di puncak stack
+    printf("\xB2============== Paket No Resi - %s ==============\xB2\n", paket.resi); 
+	printf("Nama Pengirim: %s\n", paket.nama_pengirim);
+	printf("Nama Penerima: %s\n", paket.nama_penerima);
+	printf("Nomer Telp Penerima: %s\n", paket.telp_penerima);
+	printf("Nomor Resi: %s\n", paket.resi);
+	printf("Berat: %.2f kg\n", paket.berat);
+	printf("Alamat tujuan: %s\n", paket.alamat);
+	printf("\xB2=================================================\xB2\n\n"); 
+  }
+}
+void lihat_semua_paket(PackageStack *stack) {
+  if (is_empty(stack)) {
+    printf("Stack kosong! Tidak ada paket yang bisa ditampilkan.\n");
+  } else {
+    printf("Paket di dalam stack:\n");
+    PackageNode *curr = stack->top;
+    while (curr != NULL) {
+      Package paket = curr->paket;
+      printf("\xB2============== Paket No Resi - %s ==============\xB2\n", paket.resi); 
+      printf("Nama pengirim: %s\n", paket.nama_pengirim);
+      printf("Nama penerima: %s\n", paket.nama_penerima);
+      printf("Nomor telepon penerima: %s\n", paket.telp_penerima);
+      printf("Nomor resi: %s\n", paket.resi);
+      printf("Berat paket: %.2f kg\n", paket.berat);
+      printf("Alamat tujuan: %s\n", paket.alamat);
+      printf("\xB2=================================================\xB2\n\n"); 
+      curr = curr->next;
+    }
+  }
 }
 
 int main()
@@ -124,15 +216,19 @@ int main()
   printf("20081010239 - Rifqi Alvian Ardhiansyah\n");
   printf("20081010167 - Candra Kusuma Muhammad Bimantara\n\n");
   
-
+  PackageQueue *queue = create_queue();
+  int max_size = 20; 
+  PackageStack *stack = create_stack(max_size); // membuat stack baru
+  
   do {
   	printf("        <( PROGRAM G4 LOGISTIC )>\n");
     printf("\n================( Menu )================\n");
     printf(" 1. Masukkan Paket Ke Gudang\n");
-    printf(" 2. Kirim Paket (queue)\n");
-    printf(" 3. Lihat Paket Teratas (stack)\n");
-    printf(" 4. Lihat Semua Paket Di Gudang (stack)\n");
-    printf(" 5. Keluar\n");
+    printf(" 2. Masukkan paket keantrian\n");
+    printf(" 3. Kirim Paket \n");
+    printf(" 4. Lihat Paket Teratas (stack)\n");
+    printf(" 5. Lihat Semua Paket Di Gudang (stack)\n");
+    printf(" 6. Keluar\n");
     printf("========================================\n");
     printf("Pilihan : ");
     scanf("%d", &pilihan);
@@ -141,7 +237,6 @@ int main()
     switch (pilihan) {
       case 1: {
         Package paket;
-        strcpy(paket.resi, generate_resi());
 		printf("Nama Pengirim: ");
         scanf("%s", paket.nama_pengirim);
         printf("Nama Penerima: ");
@@ -152,30 +247,28 @@ int main()
         scanf("%f", &paket.berat);
         printf("Kota Tujuan: ");
         scanf("%s", paket.alamat);
-        tambah_paket(paket);
+        strcpy(paket.resi, generate_resi());
+        push(stack, paket);;
         break;
       }
       case 2: {
-      	printf("Paket Dikirim Sesuai Antrean!!\n\n");
-        Package paket = keluarkan_paket();
-        if (brg == 1){
-        	printf("Paket yang dikirim:\n");
-        	cetak_paket(paket);
-		}
+      	enqueue(queue, stack);
         break;
       }
       case 3: {
-        Package paket = gudang[akhir];
-        printf("Paket teratas:\n");
-        cetak_paket(paket);
-        break;
+       keluarkan_paket(queue);
+       break;
       }
       case 4: {
-      	printf("Paket Paling Atas Teringan\n\n");
-        lihat_semua_paket_stack();
+    	 printf("Paket teratas:\n");
+     	 cetak_paket(stack);
+      break;
+      }
+     case 5: {
+     	lihat_semua_paket(stack);
         break;
       }
-      case 5: {
+     case 6: {
       	printf("Terima kasih telah menggunakan program ini.\n");
         break;
       }
@@ -187,6 +280,6 @@ int main()
 	printf("\n\nTekan ENTER Untuk Lanjut...");
 	getch();
 	system("cls");	
-	} while (pilihan != 5);
+	} while (pilihan != 6);
   	return 0;
 }
