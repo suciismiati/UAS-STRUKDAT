@@ -214,7 +214,8 @@ int main()
   int pilihan;
   printf("21081010003 - Volem Alvaro Azira\n");
   printf("20081010239 - Rifqi Alvian Ardhiansyah\n");
-  printf("20081010167 - Candra Kusuma Muhammad Bimantara\n\n");
+  printf("20081010167 - Candra Kusuma Muhammad Bimantara\n");
+  printf("20081010162 - Suci Ismiati\n\n");
   
   PackageQueue *queue = create_queue();
   int max_size = 20; 
