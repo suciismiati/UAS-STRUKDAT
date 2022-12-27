@@ -162,7 +162,7 @@ Package dequeue(PackageQueue *queue) {
  void keluarkan_paket(PackageQueue *queue) {
   Package paket = dequeue(queue);
   if (strlen(paket.resi) > 0) {  // Periksa apakah paket kosong
-    printf("Paket yang telah terkirim :\n");
+    printf("Paket yang telah terkirim :\n\n");
     printf("Nama pengirim: %s\n", paket.nama_pengirim);
     printf("Nama penerima: %s\n", paket.nama_penerima);
     printf("Nomor telepon penerima: %s\n", paket.telp_penerima);
