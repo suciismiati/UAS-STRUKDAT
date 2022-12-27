@@ -140,7 +140,13 @@ void enqueue(PackageQueue *queue, PackageStack *stack) {
       queue->rear->next = node;
       queue->rear = node;
     }
-    printf("paket masuk ke antrian");
+    printf("Paket masuk ke antrian untuk dikirim:\n");
+    printf("Nama pengirim: %s\n", paket.nama_pengirim);
+    printf("Nama penerima: %s\n", paket.nama_penerima);
+    printf("Nomor telepon penerima: %s\n", paket.telp_penerima);
+    printf("Nomor resi: %s\n", paket.resi);
+    printf("Berat paket: %.2f kg\n", paket.berat);
+    printf("Alamat tujuan: %s\n", paket.alamat);
   }
 }
 
